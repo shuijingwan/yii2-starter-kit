@@ -6,10 +6,10 @@
     - [要求](#要求)
     - [安装应用程序](#安装应用程序)
     - [配置Web服务器](#配置Web服务器)
-    - [单域名安装](#单域名安装)
 
 - [Docker安装](#Docker安装)
 - [Vagrant安装](#Vagrant安装)
+- [单域名安装](#单域名安装)
 - [演示用户](#演示用户)
 - [重要提示](#重要提示)
 
@@ -20,6 +20,10 @@
 ```bash
 composer global require "fxp/composer-asset-plugin"
 ```
+
+3. 安装 NPM 或 Yarn 来构建前端脚本
+- [NPM] (https://docs.npmjs.com/getting-started/installing-node)
+- Yarn (https://yarnpkg.com/en/docs/install)
 
 ### 获取源代码
 #### 下载地址
@@ -49,6 +53,7 @@ composer create-project --prefer-dist --stability=dev trntv/yii2-starter-kit
 - intl
 - gd
 - mcrypt
+- com_dotnet (for Windows)
 
 
 
@@ -69,31 +74,88 @@ composer create-project --prefer-dist --stability=dev trntv/yii2-starter-kit
 
 	- 设置应用程序的应用网址
 	```
-	FRONTEND_URL    = http://yii2-starter-kit.dev
-	BACKEND_URL     = http://backend.yii2-starter-kit.dev
-	STORAGE_URL     = http://storage.yii2-starter-kit.dev
+	FRONTEND_HOST_INFO    = http://yii2-starter-kit.dev
+	BACKEND_HOST_INFO     = http://backend.yii2-starter-kit.dev
+	STORAGE_HOST_INFO     = http://storage.yii2-starter-kit.dev
 	```
 
 3. 在命令行中运行
 ```
 php console/yii app/setup
+npm install
+npm run build
 ```
 
 ### 配置Web服务器
-复制 `vhost.conf.dist` 为 `vhost.conf`，更改为您的本机设置，并将其复制（符号链接）到 nginx 的 `sites-enabled` 目录。
-或者使用三个不同的Web主机名来配置Web服务器：
-- yii2-starter-kit.dev => /path/to/yii2-starter-kit/frontend/web
-- backend.yii2-starter-kit.dev => /path/to/yii2-starter-kit/backend/web
-- storage.yii2-starter-kit.dev => /path/to/yii2-starter-kit/storage/web
+- 将 `docker/vhost.conf` 复制到您的 nginx 配置目录
+- 更改以适应您的环境
 
-### 单域名安装
-#### 安装应用程序
+## Docker 安装
+1. 遵循 [docker 安装](https://docs.docker.com/engine/installation/) 指令
+2. 将 ``127.0.0.1 yii2-starter-kit.dev backend.yii2-starter-kit.dev storage.yii2-starter-kit.dev``* 添加到你的 `hosts` 文件
+2. 在项目根目录中，将 `.env.dist` 复制为 `.env` 
+3. 运行 `docker-compose build`
+4. 运行 `docker-compose up -d`
+5. 通过 `docker-compose exec app bash` 登录应用程序容器
+6. 安装 composer 的指令可参考 [Composer](https://getcomposer.org/download/)
+7. 运行 `php composer.phar global require "fxp/composer-asset-plugin"` and `php composer.phar install --profile --prefer-dist -o -v`
+- 如果要求您从 [github account] (https://github.com/settings/tokens) 获取令牌.
+8. 使用 `php ./console/yii app/setup --interactive=0` 设置应用程序
+9. 使用 `exit` 退出应用程序容器
+10. 安装就绪 - 打开 http://yii2-starter-kit.dev 进行访问
+
+ * - docker 主机IP地址在 Windows 和 MacOS 系统上可能有所不同
+ 
+*PS* 也可以在应用程序容器中使用 bash. 需要运行 `docker-compose exec app bash`
+
+### Docker 常见问题
+1. 如何在容器外部运行 yii 控制台命令?
+
+`docker-compose exec app console/yii help`
+
+`docker-compose exec app console/yii migrate`
+
+`docker-compose exec app console/yii rbac-migrate`
+
+2. 如何使 workbench, navicat 等连接到应用程序数据库?
+MySQL 可用配置为 `yii2-starter-kit.dev`, port `3306`. User - `root`, password - `root`
+
+## Vagrant 安装
+如果需要，您可以使用打包好的 Vagrant 而不是安装应用程序到本地计算机.
+
+1. 安装 [Vagrant](https://www.vagrantup.com/)
+2. 将目录 `docs/vagrant-files` 下的文件复制到应用程序根目录
+3. 复制 `./vagrant/vagrant.yml.dist` 为 `./vagrant/vagrant.yml`
+4. 创建 GitHub [personal API token](https://github.com/blog/1509-personal-api-tokens)
+5. 根据需要编辑 `./vagrant/vagrant.yml` 文件，包括添加 GitHub personal API token
+6. 运行:
+```
+vagrant plugin install vagrant-hostmanager
+vagrant up
+```
+安装就绪. 打开 http://yii2-starter-kit.dev 进行访问
+
+## 演示数据
+### 演示用户
+```
+Login: webmaster
+Password: webmaster
+
+Login: manager
+Password: manager
+
+Login: user
+Password: user
+```
+
+## 单域名安装
+### 安装应用程序
 调整 `.env` 文件中的配置
 
 ```
-FRONTEND_URL    = /
-BACKEND_URL     = /admin
-STORAGE_URL     = /storage/web
+FRONTEND_BASE_URL    = /
+BACKEND_BASE_URL     = /admin
+STORAGE_BASE_URL     = /storage/web
 ```
 
 调整 `backend/config/web.php` 文件中的配置
@@ -115,8 +177,8 @@ STORAGE_URL     = /storage/web
         ...
 ```
 
-#### 配置Web服务器
-##### Apache
+### 配置Web服务器
+##### Apache下的单域名
 这是一个单个域名下的Apache配置示例
 ```
 <VirtualHost *:80>
@@ -125,17 +187,17 @@ STORAGE_URL     = /storage/web
     RewriteEngine on
     # the main rewrite rule for the frontend application
     RewriteCond %{HTTP_HOST} ^yii2-starter-kit.dev$ [NC]
-    RewriteCond %{REQUEST_URI} !^/(backend/web|admin|storage/web)
+    RewriteCond %{REQUEST_URI} !^/(backend/web|storage/web)
     RewriteRule !^/frontend/web /frontend/web%{REQUEST_URI} [L]
     # redirect to the page without a trailing slash (uncomment if necessary)
-    #RewriteCond %{REQUEST_URI} ^/admin/$
-    #RewriteRule ^(/admin)/ $1 [L,R=301]
+    #RewriteCond %{REQUEST_URI} ^/backend/$
+    #RewriteRule ^(/backend)/ $1 [L,R=301]
     # disable the trailing slash redirect
-    RewriteCond %{REQUEST_URI} ^/admin$
-    RewriteRule ^/admin /backend/web/index.php [L]
+    RewriteCond %{REQUEST_URI} ^/backend$
+    RewriteRule ^/backend /backend/web/index.php [L]
     # the main rewrite rule for the backend application
-    RewriteCond %{REQUEST_URI} ^/admin
-    RewriteRule ^/admin(.*) /backend/web$1 [L]
+    RewriteCond %{REQUEST_URI} ^/backend
+    RewriteRule ^/backend(.*) /backend/web$1 [L]
 
     DocumentRoot /your/path/to/yii2-starter-kit
     <Directory />
@@ -179,7 +241,7 @@ STORAGE_URL     = /storage/web
 </VirtualHost>
 ```
 
-##### Nginx
+#### Nginx下的单域名
 这是一个单个域名下的Nginx配置示例
 
 ```
@@ -203,8 +265,8 @@ server {
         try_files $uri /frontend/web/index.php?$args;
     }
 
-    location /admin {
-        try_files  $uri /admin/index.php?$args;
+    location /backend {
+        try_files  $uri /backend/index.php?$args;
     }
 
     # storage access
@@ -236,75 +298,8 @@ server {
 
 ## PHP-FPM Servers ##
 upstream php-fpm {
-    server unix:/var/run/php/php7.0-fpm.sock;
+    server app:9000;
 }
-```
-## PHP-FPM Servers ##
-```
-upstream php-fpm {
-    server fpm:9000;
-}
-```
-
-## Docker安装
-### 在安装之前
- - 阅读 [docker](https://www.docker.com) 相关
- - 安装它
- - 如果你不是在Linux（非 OSX, Windows）上工作，你将需要一个VM来运行docker。
- - 将 ``127.0.0.1 yii2-starter-kit.dev backend.yii2-starter-kit.dev storage.yii2-starter-kit.dev``* 添加到您的 `hosts` 文件。
- 如果您不打算使用Docker容器进行应用程序部署，使用 Vagrant 方式安装 `yii2-starter-kit` 可能会更好。
-
- * - docker 主机IP地址在  Windows 和 MacOS 系统上可能有所不同
-
-### 安装
-1. 遵循 [docker 安装](https://docs.docker.com/engine/installation/) 指令
-2. 在项目根目录中，将 `.env.dist` 复制为 `.env` 。
-3. 运行 `docker-compose build`
-4. 运行 `docker-compose up -d`
-5. 本地运行 `composer install --prefer-dist --optimize-autoloader --ignore-platform-reqs`
-6. 运行 `docker-compose run app console/yii app/setup` 安装应用程序
-7. 安装就绪 - 打开 http://yii2-starter-kit.dev 可以访问了
-
-*PS* 也可以在应用程序容器中使用 bash。需要运行 `docker-compose run app bash`
-
-### Docker常见问题
-1. 如何运行 yii 控制台命令？
-
-`docker-compose exec app console/yii help`
-
-`docker-compose exec app console/yii migrate`
-
-`docker-compose exec app console/yii rbac-migrate`
-
-2. 如何使 workbench, navicat 等连接到应用程序数据库？
-MySQL 可用配置为 `yii2-starter-kit.dev`, port `3306`. User - `root`, password - `root`
-
-## Vagrant安装
-如果需要，您可以使用打包好的 Vagrant ，而不是安装应用程序到本地计算机。
-
-1. 安装 [Vagrant](https://www.vagrantup.com/)
-2. 将目录 `docs/vagrant-files` 下的文件复制到应用程序根目录
-3. 复制 `./vagrant/vagrant.yml.dist` 为 `./vagrant/vagrant.yml`
-4. 创建 GitHub [personal API token](https://github.com/blog/1509-personal-api-tokens)
-5. 根据需要编辑 `./vagrant/vagrant.yml` 文件，包括添加GitHub personal API token
-5. 运行：
-```
-vagrant plugin install vagrant-hostmanager
-vagrant up
-```
-安装就绪。打开 http://yii2-starter-kit.dev 可以访问了
-
-## 演示数据
-### 演示用户
-```
-Login: webmaster
-Password: webmaster
-
-Login: manager
-Password: manager
-
-Login: user
-Password: user
 ```
 
 ## 重要提示

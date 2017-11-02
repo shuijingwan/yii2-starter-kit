@@ -60,10 +60,14 @@ Password: manager
 Login: user
 Password: user
 ```
+## 为进一步发展捐款
+- [比特币] (https://www.coinbase.com/checkouts/2f1c1cb31c395e5aaafa1ba70003552e)
+- [WebMoney] (Z110052695454)
+- 其他方式: [eugene@terentev.net](mailto:eugene@terentev.net)
 
 ## 特征
 - 漂亮和开源的后端仪表板主题 [AdminLTE 2](http://almsaeedstudio.com/AdminLTE)
-- 翻译：英语，西班牙语，俄语，乌克兰语，中文
+- 翻译：英语，西班牙语，俄语，乌克兰语，中文，越南语
 - 支持翻译的编辑器
 - 语言更改操作+基于浏览器首选语言选择语言环境的行为
 - 登录，注册，个人资料（头像，区域设置，个人数据），电子邮件激活等
@@ -72,6 +76,7 @@ Password: user
 - RBAC具有预定义的 `guest`, `user`, `manager` and `administrator` 角色
 - RBAC迁移支持
 - 内容管理组件：文章，类别，静态页面，可编辑菜单，可编辑轮播，文本块
+- [Webpack](https://webpack.js.org/) 配置
 - Key-value 存储组件
 - 应用程序设置表单（基于 KeyStorage 组件）
 - 准备好的RESTful API模块
@@ -82,7 +87,7 @@ Password: user
 - Yii2日志的Web界面支持
 - 应用程序时间轴组件
 - 缓存web控制器
-- 维护模式组件（[更多](#维护模式组件)）
+- 维护模式组件 ([更多](#维护模式组件))
 - 系统信息的Web界面
 - dotenv支持
 - `ExtendedMessageController` 能够替换源语言并在消息源之间迁移消息
@@ -317,12 +322,6 @@ public function behaviors()
 
 ##如何贡献？
 你可以采用你所能够想像到的任何方式、任何帮助与赞赏，但我最需要的应该是文档方面的 (^_^)
-
-##捐款
-- [Paypal] (https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X7UFA3F3ALPM8)
-- [Bitcoin] (https://www.coinbase.com/checkouts/2f1c1cb31c395e5aaafa1ba70003552e)
-- [WebMoney] (Z110052695454)
-- 其他方式： [eugene@terentev.net](mailto:eugene@terentev.net)
 
 ##有任何问题？
 发送邮件至 [eugene@terentev.net](mailto:eugene@terentev.net)
