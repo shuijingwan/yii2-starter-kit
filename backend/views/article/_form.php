@@ -27,11 +27,41 @@ use yii\bootstrap\ActiveForm;
             'title'
         ), ['prompt'=>'']) ?>
 
+    <?php
+        /* 基于本地语言环境手动定义编辑器的语言选项 */
+        switch (Yii::$app->language) {
+            case 'en-US':
+                $lang = 'en';
+                break;
+            case 'ru-RU':
+                $lang = 'ru';
+                break;
+            case 'uk-UA':
+                $lang = 'uk';
+                break;
+            case 'es':
+                $lang = 'es';
+                break;
+            case 'vi':
+                $lang = 'vi';
+                break;
+            case 'zh-CN':
+                $lang = 'zh_cn';
+                break;
+            case 'pl-PL':
+                $lang = 'pl';
+                break;
+            default:
+                $lang = 'en';
+        }
+    ?>
+
     <?php echo $form->field($model, 'body')->widget(
         \yii\imperavi\Widget::className(),
         [
             'plugins' => ['fullscreen', 'fontcolor', 'video'],
             'options' => [
+                'lang' => $lang,
                 'minHeight' => 400,
                 'maxHeight' => 400,
                 'buttonSource' => true,
